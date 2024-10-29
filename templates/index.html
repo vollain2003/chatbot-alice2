@@ -6,6 +6,71 @@
     <title>Chat with Alice</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            max-width: 90%;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background-color: #2a9d8f;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        #chat-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 300px; /* Set a max height for the chat box */
+        }
+        .message {
+            margin: 5px 0;
+        }
+        .message.user {
+            text-align: right;
+        }
+        .message.alice {
+            text-align: left;
+        }
+        .input-area {
+            display: flex;
+            border-top: 1px solid #ccc;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 0 0 0 10px;
+            outline: none;
+        }
+        #send-button {
+            background-color: #2a9d8f;
+            color: white;
+            border: none;
+            border-radius: 0 0 10px 0;
+            cursor: pointer;
+            padding: 10px;
+        }
+        #send-button:hover {
+            background-color: #21867b;
+        }
+    </style>
 </head>
 <body>
     <div class="chat-container">
@@ -16,7 +81,7 @@
             <!-- Messages will be displayed here -->
         </div>
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Type your message...">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
             <button id="send-button">Send</button>
         </div>
     </div>
@@ -33,7 +98,7 @@
             var userInput = document.getElementById("user-input").value;
             if (!userInput.trim()) return;
 
-            appendMessage("You", userInput);
+            appendMessage("You", userInput, "user");
             document.getElementById("user-input").value = "";
             
             fetch("/chat", {
@@ -46,23 +111,23 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === "success" && data.response) {
-                    appendMessage("Alice", data.response);
+                    appendMessage("Alice", data.response, "alice");
                 } else {
-                    appendMessage("Error", data.message || "An unexpected error occurred");
+                    appendMessage("Error", data.message || "An unexpected error occurred", "error");
                 }
             })
             .catch(error => {
-                appendMessage("Error", "Failed to get response from server: " + error.message);
+                appendMessage("Error", "Failed to get response from server: " + error.message, "error");
             });
         }
 
-        function appendMessage(sender, message) {
+        function appendMessage(sender, message, type) {
             var chatBox = document.getElementById("chat-box");
             var messageDiv = document.createElement("div");
-            messageDiv.className = "message " + sender.toLowerCase();
+            messageDiv.className = "message " + type;
             messageDiv.innerHTML = "<strong>" + sender + ":</strong> " + message;
             chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
         }
     </script>
 </body>
